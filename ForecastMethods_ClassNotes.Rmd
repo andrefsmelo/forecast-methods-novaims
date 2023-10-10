@@ -1,0 +1,163 @@
+---
+title: "Forecast Methods - NOVA IMS 2023"
+author: "Andre Melo"
+date: "8 de outubro de 2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Week 1 - Time series basics
+
+### 1.1 Main features of a time series
+
+**Time series:** Statistical data, which results from the observation for a period of
+time of a real phenomenon, which have something structurally
+stable
+
+- Often, the measurements are made at regular time intervals
+- Data are not necessarily independent and not necessarily identically distributed
+- The Ordering matters (dependency)
+
+**objective:** Determine a model that describes the pattern of the time series
+
+### 1.2 Simple forecast methods
+
+- **Average method:** Mean of historical data
+- **Naive method:** Last observed value
+- **Seasonal naive method:** Last value from the same season
+- **Drift method:** Last value plus average change ("Trend")
+
+### 1.3 Types of models
+
+**Decomposition methods:** based in the decomposition of three movements or strengths: trend, seasonality and noise.
+
+**ARIMA (Autoregressive Integrated Moving Average):** Models that relate the present value of a series to past values and past prediction errors.
+
+**Ordinary regression models:** Use time indices as x-variables (independent variables). These can be helpful for an initial description of the data and form the basis of several simple forecasting methods
+
+Some important questions to first consider when first looking at a time series are:
+
+- Is there a trend, meaning that, on average, the measurements tend to increase (or decrease) over time?
+- Is there seasonality, meaning that there is a regularly repeating pattern of highs and lows related to calendar time such as seasons, quarters, months, days of the week, and so on?
+- Are their outliers? In regression, outliers are far away from your line. With time series data, your outliers are far away from your other data.
+- Is there a long-run cycle or period unrelated to seasonality factors?
+- Is there constant variance over time, or is the variance non-constant?
+- Are there any abrupt changes to either the level of the series or the variance?
+
+
+## Week 2 - Autocorrelation and Autoregressive models
+
+### 2.1 AR(1) model
+
+- Use a linear model to predict the value at the present time using the value at the previous time
+- The order of the model indicates how many previous times we use to predict the present time.
+- A start in evaluating whether an AR(1) might work is to plot values of the series against lag 1 values of the series (linear correlation)
+
+ **AR(1):** $x_{t}$ = $\delta$ + $\phi_{1}$ $x_{t-1}$ + $w_{t}$
+
+Assumptions:
+
+- $w_{t}$ $\sim^{iid}$ $N(0,\sigma^{2}_{w})$ (errors are independently distributed with a normal distribution that has mean 0 and constant variance)
+- The erros $w_{t}$ are independent of $x$
+
+Residual analysis: A plot of residuals versus fits is a useful diagnostic tool. The desirable result is that the correlation is 0 between residuals separated by any given time span. Residuals should be unrelated to each other.
+
+- Let $\epsilon_{t}\sim^{iid}$ $N(0,\sigma^{2})$ A model with additive components for linear trend and seasonal (quarterly) effects might be written:
+
+$x_{t}$ = $\beta_{1}t$ + $\alpha_{1}S_{1}$ + $\alpha_{2}S_{2}$ + $\alpha_{3}S_{3}$ + $\alpha_{4}S_{4}$ + $\epsilon_{t}$
+
+- To add a quadratic trend the model is:
+
+$x_{t}$ = $\beta_{1}t$ + $\beta_{2}t^{2}$ + $\alpha_{1}S_{1}$ + $\alpha_{2}S_{2}$ + $\alpha_{3}S_{3}$ + $\alpha_{4}S_{4}$ + $\epsilon_{t}$
+
+**Sample covariance and correlation**
+
+- Covariance:
+
+$Cov(x_{t}, y_{t}) = S_{xy} = \frac{1}{n-1}\sum_{t=1}^{T} (x_{t}-\overline{x})(y_{t}-\overline{y})$
+
+- Correlation 
+
+$r_{xy} = \frac{Cov(x_{t}, y_{t})}{S_{x}S_{Y}}$
+
+- Lag h sample autocovariance
+
+$Cov(x_{t}, x_{t-h}) = C_{h} = \frac{1}{n-h+1}\sum_{t=h+1}^{n} (x_{t}-\overline{x})(x_{t-h}-\overline{x})$
+
+- Lag h sample autocorrelation 
+
+$r_{h} = \frac{C_{h}}{S_{x}^{2}} = \frac{C_{h}}{C_{0}}$
+
+
+**Sample Autocorrelation Function (ACF):** or a series gives correlations between the series xt and lagged values of the series for lags of 1, 2, 3, and so on
+
+- Can be used to identify the possible structure of time series data (can be tricky)
+- The ACF of the residuals for a model is also useful (standard residual diagnostic). The ideal for a sample ACF of residuals is that there are not any significant correlations for any lag (White Noise)
+- Common to plot lines at $\frac{±1.96}{√n}$ when plotting ACF. These are the critical values.
+
+
+### 2.2 Sample ACF and properties of AR(1) model
+
+For an ACF to make sense, the series must be a **weakly stationary series**.
+
+This means that the **autocorrelation for any particular lag is the same regardless of where we are in time**.
+
+A series xt is said to be (weakly) stationary if it satisfies the following properties:
+
+- The mean $E(x_{t})$ is the same for all $t$.
+- The variance of $x_{t}$ is the same for all $t$.
+- The covariance (and also correlation) between $x_{t}$ and $x_{t-h}$ is the same for all $t$.
+
+Most series that we encounter in practice, however, are not stationary. A continual upward trend, for example, is a violation of the requirement that the mean is the same for all t. Distinct seasonal patterns also violate that requirement.
+
+
+**Properties of AR(1)**
+
+$x_{t} = \delta + \phi_{1} x_{t-1} + w_{t}$
+
+Assumptions:
+
+- $w_{t}\sim^{iid} N(0,\sigma_{w}^{2})$ , meaning that the errors are independently distributed with a normal distribution that has mean 0 and constant variance.
+- The errors $w_{t}$ are independent of $x_{t}$.
+- The series $x_{1}, x_{2}, ...$ is (weakly) stationary. A requirement for a stationary AR(1) is that $|\phi_{1}| < 1$.
+
+The **mean** of $x_{t}$ is:
+
+$\mu = E(x_{t}) = E(\delta + \phi_{1} x_{t-1} + w_{t})$
+$= E(\delta) + \phi_{1} E(x_{t-1}) + E(w_{t})$
+
+$\mu = \delta + \phi_{1}\mu$
+
+$\mu(1-\phi_{1}) = \delta$
+
+$\mu = \frac{\delta}{1-\phi_{1}}$
+
+The **variance** is:
+
+$Var(x_{t}) = Var(\delta + \phi_{1} x_{t-1} + w_{t})$
+$= Var(\delta) + \phi_{1}^{2}Var(x_{t-1})+Var(w_{t})$
+
+$Var(x_{t}) = \phi_{1}^{2}Var(x_{t}) + \sigma_{w}^2$
+
+$Var(x_{t}) =  \frac{\sigma_{w}^2}{1-\phi_{1}^{2}}$
+
+Since $Var(x_{t})>0$, then $1-\phi^2_{1}>0$ which implies that $|\phi_{1}|<1$
+
+**Covariance** and **Correlation**:
+
+- 
+
+
+___
+
+```{r cars}
+summary(cars)
+```
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
